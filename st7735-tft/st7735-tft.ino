@@ -24,6 +24,7 @@ int16_t sx = 0;
 int16_t sy = 0;
 int16_t sw = 128;
 int16_t sh = 128;
+float stickXCenter = 512; //default ideal value
 
 void setup()
 {
@@ -32,20 +33,33 @@ void setup()
   tft.initR(INITR_144GREENTAB);
   tft.setRotation(0);
   tft.fillScreen(ST7735_CYAN);
-  
+
   //game
   x = 48;
   y = 48;
   fps = 0;
-  aX = 0;
-  aY = -3;
+  aX = 4;
+  aY = 0;
   gravity = 0.25;
+  lastMillis = millis();
 
   //joy
-  pinMode(JOY_BT,INPUT); 
-  digitalWrite(JOY_BT,HIGH); 
-  
-  lastMillis = millis();
+  calibrateStick();
+}
+
+void calibrateStick(void)
+{
+  pinMode(JOY_BT, INPUT);
+  digitalWrite(JOY_BT, HIGH);
+  float xCenterAvg = 0;
+  int samples = 0;
+  while (millis() - lastMillis < 500)
+  {
+    xCenterAvg += analogRead(JOY_AX);
+    samples++;
+  }
+
+  stickXCenter = (xCenterAvg / samples);
 }
 
 void getFps(void)
@@ -62,23 +76,28 @@ void getFps(void)
 
 void actions(void)
 {
-  //if (x > 112 || x < 16)
-  //  aX *= -1.0;
+  aX = aX / 1.25;
+  if (abs(aX) < 0.1) aX = 0;
 
-  aY+=gravity;
-  if (y > 48) aY=-3;
+  aY += gravity;
+  if (y > 48) aY = 0; //floor
 
-  x+=aX;
-  y+=aY;
+  x += aX;
+  y += aY;
 }
 
 void inputs(void)
 {
-    //0-1023
-    aX = (analogRead(JOY_AX)-512)/512;
-    Serial.println(analogRead(JOY_AX));
-    //yValue = analogRead(JOY_AY);  
-    //bValue = digitalRead(JOY_BT);
+  //0-stickXCenter-1023
+  float f = analogRead(JOY_AX);
+
+  if (f >= stickXCenter) aX += ((f - stickXCenter) / (1023.0 - stickXCenter)); else aX -= 1 - (f / stickXCenter);
+  if (aX > 2)aX = 2; if (aX < -2)aX = -2;
+
+  //yValue = analogRead(JOY_AY);
+  if (digitalRead(JOY_BT) == 1 && aY == 0) aY = -3;
+  Serial.println(digitalRead(JOY_BT));
+
 }
 
 void loop(void)
@@ -87,7 +106,7 @@ void loop(void)
   canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
 
   inputs();
-  
+
   actions();
 
   canvas->drawRGBBitmap(x, y, sprite, 16, 16);
