@@ -15,7 +15,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 GFXcanvas16 *canvas = new GFXcanvas16(128, 128);
 
 uint lastMillis;
-float x, y, fps;
+float x, y, fps, aX, aY, gravity;
 int16_t sx = 0;
 int16_t sy = 0;
 int16_t sw = 128;
@@ -28,7 +28,13 @@ void setup()
   tft.initR(INITR_144GREENTAB);
   tft.setRotation(0);
   tft.fillScreen(ST7735_CYAN);
-  x = y = fps = 0;
+  x = 48;
+  y = 48;
+  fps = 0;
+  aX = 1;
+  aY = -3;
+  gravity = 0.25;
+  
   lastMillis = millis();
 }
 
@@ -44,19 +50,26 @@ void getFps(void)
   }
 }
 
+void actions(void)
+{
+  if (x > 112 || x < 16)
+    aX *= -1.0;
+
+  aY+=gravity;
+  if (y > 48) aY=-3;
+
+  x+=aX;
+  y+=aY;
+}
+
 void loop(void)
 {
 
   // canvas -> fillScreen(ST7735_BLACK);
   canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
-  if (x > 112)
-  {
-    x = 0;
-    y++;
-    if (y > 112)
-      y = 0;
-  }
-  x++;
+  
+  actions();
+
   canvas->drawRGBBitmap(x, y, sprite, 16, 16);
 
   getFps();
