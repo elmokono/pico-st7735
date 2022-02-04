@@ -11,6 +11,10 @@
 #define TFT_CS 17
 #define TFT_RST 20
 
+#define JOY_AX 26
+#define JOY_AY 27
+#define JOY_BT 22
+
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 GFXcanvas16 *canvas = new GFXcanvas16(128, 128);
 
@@ -28,12 +32,18 @@ void setup()
   tft.initR(INITR_144GREENTAB);
   tft.setRotation(0);
   tft.fillScreen(ST7735_CYAN);
+  
+  //game
   x = 48;
   y = 48;
   fps = 0;
-  aX = 1;
+  aX = 0;
   aY = -3;
   gravity = 0.25;
+
+  //joy
+  pinMode(JOY_BT,INPUT); 
+  digitalWrite(JOY_BT,HIGH); 
   
   lastMillis = millis();
 }
@@ -52,8 +62,8 @@ void getFps(void)
 
 void actions(void)
 {
-  if (x > 112 || x < 16)
-    aX *= -1.0;
+  //if (x > 112 || x < 16)
+  //  aX *= -1.0;
 
   aY+=gravity;
   if (y > 48) aY=-3;
@@ -62,11 +72,21 @@ void actions(void)
   y+=aY;
 }
 
+void inputs(void)
+{
+    //0-1023
+    aX = (analogRead(JOY_AX)-512)/512;
+    Serial.println(analogRead(JOY_AX));
+    //yValue = analogRead(JOY_AY);  
+    //bValue = digitalRead(JOY_BT);
+}
+
 void loop(void)
 {
-
   // canvas -> fillScreen(ST7735_BLACK);
   canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
+
+  inputs();
   
   actions();
 
