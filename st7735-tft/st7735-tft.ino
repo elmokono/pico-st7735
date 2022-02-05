@@ -49,8 +49,8 @@ void setup()
 
 void calibrateStick(void)
 {
-  pinMode(JOY_BT, INPUT);
-  digitalWrite(JOY_BT, HIGH);
+  pinMode(JOY_BT, INPUT_PULLUP);
+  //digitalWrite(JOY_BT, HIGH);
   float xCenterAvg = 0;
   int samples = 0;
   while (millis() - lastMillis < 500)
@@ -80,7 +80,10 @@ void actions(void)
   if (abs(aX) < 0.1) aX = 0;
 
   aY += gravity;
-  if (y > 48) aY = 0; //floor
+  if (y > 48) {
+    aY = 0;  //floor
+    y = 48;
+  }
 
   x += aX;
   y += aY;
@@ -95,7 +98,7 @@ void inputs(void)
   if (aX > 2)aX = 2; if (aX < -2)aX = -2;
 
   //yValue = analogRead(JOY_AY);
-  if (digitalRead(JOY_BT) == 1 && aY == 0) aY = -3;
+  if (digitalRead(JOY_BT) == LOW/* && aY == 0*/) aY = -3;
   Serial.println(digitalRead(JOY_BT));
 
 }
