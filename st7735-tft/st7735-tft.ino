@@ -50,7 +50,6 @@ void setup()
 void calibrateStick(void)
 {
   pinMode(JOY_BT, INPUT_PULLUP);
-  //digitalWrite(JOY_BT, HIGH);
   float xCenterAvg = 0;
   int samples = 0;
   while (millis() - lastMillis < 500)
@@ -97,16 +96,13 @@ void inputs(void)
   if (f >= stickXCenter) aX += ((f - stickXCenter) / (1023.0 - stickXCenter)); else aX -= 1 - (f / stickXCenter);
   if (aX > 2)aX = 2; if (aX < -2)aX = -2;
 
-  //yValue = analogRead(JOY_AY);
-  if (digitalRead(JOY_BT) == LOW/* && aY == 0*/) aY = -3;
-  Serial.println(digitalRead(JOY_BT));
-
+  if (digitalRead(JOY_BT) == LOW && aY == 0) aY = -3;
 }
 
 void loop(void)
 {
-  // canvas -> fillScreen(ST7735_BLACK);
-  canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
+  //canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
+  canvas->fillBitmap(bgImage);
 
   inputs();
 
