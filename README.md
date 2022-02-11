@@ -2,9 +2,15 @@
 
 Pins used:
 
-DC 21
-CS 17
-RST 20
+TFT DC 21
+TFT CS 17
+TFT RST 20
+
+JOY Axis X 26
+JOY Axis Y 27
+JOY Stick button 22
+Push button A 2
+Push button B 3
 
 MISO, MOSI, CLCK are taken from SPI.h for given board, in this case Raspberry Pi Pico
 
