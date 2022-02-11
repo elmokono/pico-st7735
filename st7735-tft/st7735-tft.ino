@@ -101,7 +101,6 @@ void inputs(void)
 
 void loop(void)
 {
-  //canvas->drawRGBBitmap(sx, sy, bgImage, sw, sh);
   canvas->fillBitmap(bgImage);
 
   inputs();
